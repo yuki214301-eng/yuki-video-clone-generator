@@ -14,13 +14,13 @@
   .lede{font-size:12px;line-height:1.6}
   .mode-tabs{margin-bottom:14px}
   .workspace{flex:1;min-height:0;align-items:stretch}
-  .input-column{display:grid;grid-template-columns:1.05fr .95fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;min-height:0}
-  .input-column .panel{margin:0;padding:14px;min-height:0}
-  .panel-video{grid-column:1;grid-row:1 / span 2}
+  .input-column{display:grid;grid-template-columns:1.05fr .95fr;grid-template-rows:minmax(0,1fr) auto auto;gap:12px;min-height:0}
+  .input-column .panel{margin:0;padding:14px;min-height:0;overflow:hidden}
+  .panel-video{grid-column:1;grid-row:1}
   .panel-asset{grid-column:2;grid-row:1}
-  .panel-preferences{grid-column:2;grid-row:2}
-  .input-column .generate-btn{grid-column:1 / -1;grid-row:3}
-  .privacy-note{grid-column:1 / -1;margin:0;font-size:9px}
+  .panel-preferences{grid-column:2;grid-row:1;align-self:end;max-height:100%;overflow:auto}
+  .input-column .generate-btn{grid-column:1 / -1;grid-row:2}
+  .privacy-note{grid-column:1 / -1;grid-row:3;margin:0;font-size:9px}
   .dropzone{min-height:96px}
   .panel-video .dropzone{height:calc(100% - 42px);min-height:180px}
   .panel-asset .dropzone{min-height:92px}
@@ -30,4 +30,22 @@
   .result-panel{height:100%;min-height:0;margin:0;overflow:hidden}
   .result-panel.empty{padding:32px 42px}
   .prompt-output{height:calc(100% - 210px);min-height:220px}
+}
+
+/* 模式一：没有替换素材时，偏好卡片与参考视频左右并排，不占用额外行。 */
+@media(min-width:901px){
+  .input-column:has(.panel-asset.hidden){grid-template-rows:minmax(0,1fr) auto auto}
+  .input-column:has(.panel-asset.hidden) .panel-video{grid-column:1;grid-row:1}
+  .input-column:has(.panel-asset.hidden) .panel-preferences{grid-column:2;grid-row:1;align-self:stretch}
+  .input-column:has(.panel-asset.hidden) .generate-btn{grid-column:1 / -1;grid-row:2}
+}
+
+/* 模式二：素材卡片单独占第一行，偏好卡片放第二行。 */
+@media(min-width:901px){
+  .input-column:not(:has(.panel-asset.hidden)){grid-template-rows:minmax(0,1fr) minmax(0,auto) auto auto}
+  .input-column:not(:has(.panel-asset.hidden)) .panel-video{grid-column:1;grid-row:1}
+  .input-column:not(:has(.panel-asset.hidden)) .panel-asset{grid-column:2;grid-row:1}
+  .input-column:not(:has(.panel-asset.hidden)) .panel-preferences{grid-column:1 / -1;grid-row:2;align-self:stretch}
+  .input-column:not(:has(.panel-asset.hidden)) .generate-btn{grid-column:1 / -1;grid-row:3}
+  .input-column:not(:has(.panel-asset.hidden)) .privacy-note{grid-row:4}
 }
