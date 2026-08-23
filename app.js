@@ -32,7 +32,8 @@ function setMode(mode) {
     const active = tab.dataset.mode === mode;
     tab.classList.toggle('active', active); tab.setAttribute('aria-selected', active ? 'true' : 'false');
   });
-  $('#assetPanel').classList.toggle('mode2-required', mode === 'mode2');
+  $('#assetPanel').classList.toggle('hidden', mode !== 'mode2');
+  $('#preferencesIndex').textContent = mode === 'mode2' ? '03' : '02';
   updateButton();
 }
 
@@ -166,6 +167,7 @@ wireDrop(videoDrop, videoInput, setVideo); wireDrop(assetDrop, assetInput, setAs
 $('#clearVideo').addEventListener('click', clearVideo); $('#clearAsset').addEventListener('click', clearAsset);
 generateBtn.addEventListener('click', generate); $('#copyBtn').addEventListener('click', copyPrompt); $('#downloadBtn').addEventListener('click', downloadPrompt);
 $('#newRunBtn').addEventListener('click', () => { $('#resultState').classList.add('hidden'); $('#emptyState').classList.remove('hidden'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+setMode('mode1');
 
 fetch('/api/health').then((r) => r.json()).then((data) => {
   $('#visionStatus').textContent = data.vision_configured ? '视觉分析已连接' : '本地分析服务';
