@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f5f2ea" />
+  <title>Prompt Foundry · 视频提示词生成器</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="grain"></div>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <p class="kicker">PROMPT FOUNDRY / SEEDANCE 2.5</p>
+        <h1>把一段视频，<em>拆成可执行的提示词。</em></h1>
+        <p class="lede">按原片的钩子、镜头、动作因果和声音逻辑生成可直接粘贴的中文提示词。模式二会把原视频中的产品或角色替换为你的图片。</p>
+      </div>
+      <div class="status-chip"><span></span><b id="visionStatus">本地分析服务</b><small id="visionHint">等待上传</small></div>
+    </header>
+
+    <section class="mode-tabs" role="tablist" aria-label="生成模式">
+      <button class="mode-tab active" data-mode="mode1" role="tab" aria-selected="true"><span>模式一</span><b>只输入视频</b><small>还原原片创意结构</small></button>
+      <button class="mode-tab" data-mode="mode2" role="tab" aria-selected="false"><span>模式二</span><b>视频 + 产品/角色图</b><small>替换主体，保留原片动作</small></button>
+    </section>
+
+    <section class="workspace">
+      <div class="input-column">
+        <div class="panel panel-video">
+          <div class="panel-head"><div><span class="index">01</span><h2>参考视频</h2></div><span class="required">必填</span></div>
+          <label class="dropzone" id="videoDrop" for="videoInput">
+            <input id="videoInput" type="file" accept="video/*,.mp4,.mov,.webm,.m4v" />
+            <span class="drop-icon">↗</span><strong>拖入视频，或点击选择</strong><small>MP4 / MOV / WebM · 最大 300MB</small>
+          </label>
+          <div class="preview-card hidden" id="videoPreviewCard"><video id="videoPreview" controls playsinline></video><div><b id="videoName">—</b><small id="videoMeta">—</small></div><button class="clear-btn" id="clearVideo" aria-label="移除视频">×</button></div>
+        </div>
+
+        <div class="panel panel-asset" id="assetPanel">
+          <div class="panel-head"><div><span class="index">02</span><h2>替换素材</h2></div><span class="optional">模式二必填</span></div>
+          <label class="dropzone asset-drop" id="assetDrop" for="assetInput">
+            <input id="assetInput" type="file" accept="image/*,.png,.jpg,.jpeg,.webp" />
+            <span class="drop-icon">✦</span><strong>上传产品或角色图</strong><small>PNG / JPG / WebP · 图片背景不会被带入场景</small>
+          </label>
+          <div class="asset-preview hidden" id="assetPreview"><img id="assetImage" alt="产品或角色预览" /><div><b id="assetName">—</b><small>作为 @图片1 的外观权威参考</small></div><button class="clear-btn" id="clearAsset" aria-label="移除图片">×</button></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><span class="index">03</span><h2>生成偏好</h2></div><span class="optional">自动识别</span></div>
+          <div class="field-grid">
+            <label><span>时长（秒）</span><input id="durationInput" type="number" min="1" max="30" placeholder="跟随原片" /></label>
+            <label><span>画幅</span><select id="aspectInput"><option value="">跟随原片</option><option>9:16</option><option>16:9</option><option>1:1</option><option>4:3</option><option>3:4</option><option>21:9</option></select></label>
+          </div>
+          <label class="notes-field"><span>补充约束（可选）</span><textarea id="notesInput" rows="3" placeholder="例如：不要背景音乐；对白保留中文；产品必须完整露出……"></textarea></label>
+        </div>
+        <button class="generate-btn" id="generateBtn" disabled><span>生成 Seedance 提示词</span><i>→</i></button>
+        <p class="privacy-note">素材只写入本机 <code>video-prompt-generator/runs/</code>。未配置视觉模型时，系统不会猜测看不清的动作，而会标出「待确认」。</p>
+      </div>
+
+      <div class="result-column">
+        <div class="result-panel empty" id="emptyState"><div class="empty-mark">✦</div><p class="kicker">READY WHEN YOU ARE</p><h2>你的提示词<br /><em>会在这里落地。</em></h2><p>上传视频后，系统会先读取时长、画幅并抽帧分析；配置视觉模型后，会进一步识别镜头、快速动作与外层包装。</p><div class="recipe"><span>素材字典</span><span>一句话概述</span><span>时间轴剧本</span><span>全局约束</span></div></div>
+        <div class="result-panel result hidden" id="resultState">
+          <div class="result-head"><div><p class="kicker" id="resultMode">MODE 01</p><h2>提示词已生成 <span id="resultBadge">· 可复制</span></h2></div><button class="secondary-btn" id="newRunBtn">重新分析</button></div>
+          <div class="metric-row" id="metricRow"></div>
+          <div class="warning hidden" id="warningBox"></div>
+          <div class="analysis-summary" id="analysisSummary"></div>
+          <div class="prompt-toolbar"><span>最终提示词 · prompt.txt</span><div><button class="secondary-btn" id="copyBtn">复制</button><button class="secondary-btn" id="downloadBtn">下载 .txt</button></div></div>
+          <textarea class="prompt-output" id="promptOutput" spellcheck="false" readonly></textarea>
+          <div class="file-links" id="fileLinks"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
